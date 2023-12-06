@@ -1,4 +1,7 @@
-use bevy::{prelude::*, log::{LogPlugin, Level}};
+use bevy::{
+    log::{Level, LogPlugin},
+    prelude::*,
+};
 use common::AppState;
 use noise::{
     utils::{NoiseMap, NoiseMapBuilder, PlaneMapBuilder},
@@ -13,15 +16,22 @@ mod ui;
 
 fn main() {
     App::new()
-    .add_plugins((DefaultPlugins.set(ImagePlugin::default_nearest()).set(LogPlugin {
-        level: Level::DEBUG,
-        filter: "wgpu=error,naga=error,bevy_render=error,bevy_app=info,bevy_ecs=info".to_string()
-    }), ui::UiPlugin))
-    .add_state::<AppState>()
-    .add_systems(OnEnter(AppState::Build), generate_world)
-    .add_systems(OnExit(AppState::Finished), cleanup)
-    .add_systems(Update, reset.run_if(in_state(AppState::Finished)))
-    .run();
+        .add_plugins((
+            DefaultPlugins
+                .set(ImagePlugin::default_nearest())
+                .set(LogPlugin {
+                    level: Level::DEBUG,
+                    filter: "wgpu=error,naga=error,bevy_render=error,bevy_app=info,bevy_ecs=info"
+                        .to_string(),
+                }),
+            ui::UiPlugin,
+            camera::CameraPlugin,
+        ))
+        .add_state::<AppState>()
+        .add_systems(OnEnter(AppState::Build), generate_world)
+        .add_systems(OnExit(AppState::Finished), cleanup)
+        .add_systems(Update, reset.run_if(in_state(AppState::Finished)))
+        .run();
 }
 
 fn generate_noise_map() -> NoiseMap {
