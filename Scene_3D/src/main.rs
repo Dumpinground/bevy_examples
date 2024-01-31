@@ -3,10 +3,11 @@ mod camera;
 use std::f32::consts::FRAC_PI_2;
 
 use bevy::prelude::*;
+use camera::CameraPlugin;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
+        .add_plugins((DefaultPlugins, CameraPlugin))
         .add_systems(Startup, setup)
         .run();
 }
