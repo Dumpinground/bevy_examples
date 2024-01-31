@@ -1,3 +1,5 @@
+mod camera;
+
 use std::f32::consts::FRAC_PI_2;
 
 use bevy::prelude::*;
@@ -35,11 +37,6 @@ fn setup(
             ..default()
         },
         transform: Transform::from_xyz(4., 8., 4.),
-        ..default()
-    });
-
-    commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(-2.5, 4.5, 9.).looking_at(Vec3::ZERO, Vec3::Y),
         ..default()
     });
 }
