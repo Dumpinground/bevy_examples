@@ -44,6 +44,8 @@ fn move_camera(mut query: Query<&mut Transform, With<Camera>>, keyboard: Res<Inp
     }
 }
 
+fn rotate_camera()
+
 fn lift_camera(mut query: Query<&mut Transform, With<Camera>>, mut wheel_event: EventReader<MouseWheel>, time: Res<Time>) {
     let speed = 4.;
 
