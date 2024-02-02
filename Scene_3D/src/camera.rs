@@ -36,12 +36,6 @@ fn move_camera(mut query: Query<&mut Transform, With<Camera>>, keyboard: Res<Inp
             direction += Vec3::new(0., 0., -1.);
         }
 
-        // for event in wheel_event.read() {
-        //     match event.unit {
-        //         MouseScrollUnit::Line | MouseScrollUnit::Pixel => direction += Vec3::new(0., event.y * 2., 0.),
-        //     }
-        // }
-
         if direction.length() > 0. {
             direction = direction.normalize();
         }
