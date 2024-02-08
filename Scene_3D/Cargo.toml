@@ -15,8 +15,10 @@ opt-level = 3
 bevy_panorbit_camera = "0.11"
 dotenvy = "0.15"
 
-[target.'cfg(not(target_family = "wasm"))'.dependencies]
 bevy = { version = "0.12", features = ["dynamic_linking"] }
 
-[target.'cfg(target_family = "wasm")'.dependencies]
-bevy = "0.12"
+# [target.'cfg(not(target_family = "wasm"))'.dependencies]
+# bevy = { version = "0.12", features = ["dynamic_linking"] }
+
+# [target.'cfg(target_family = "wasm")'.dependencies]
+# bevy = "0.12"

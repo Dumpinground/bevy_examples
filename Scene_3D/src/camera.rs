@@ -4,14 +4,13 @@ mod my_camera;
 mod panrobit;
 
 use my_camera::MyCameraPlugin;
-use panrobit::MyPanOrbitCameraPlugin;
+use panrobit::ExternalPanOrbitCameraPlugin;
 
 use crate::env::CameraType;
 pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
-        
         let envs = crate::env::read_envs();
 
         match envs.camera {
@@ -19,7 +18,7 @@ impl Plugin for CameraPlugin {
                 app.add_plugins(MyCameraPlugin);
             }
             CameraType::PanOrbit => {
-                app.add_plugins(MyPanOrbitCameraPlugin);
+                app.add_plugins(ExternalPanOrbitCameraPlugin);
             }
         }
     }

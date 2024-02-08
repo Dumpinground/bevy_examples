@@ -50,32 +50,40 @@ fn orbit_camera(mut query: Query<&mut Transform, With<Camera>>, keyboard: Res<In
 
         // (x, z) = (z, -x);
         let translation = transform.translation;
-        let distance_2 = translation.x.powi(2) + translation.y.powi(2);
 
-        let mut direction = Vec3::ZERO;
+        let direction = Vec3::ZERO;
 
         if keyboard.pressed(KeyCode::E) {
-            direction += Vec3::new(translation.z, 0., -translation.x);
+            let new_direction = Vec3::new(translation.z, 0., -translation.x);
+            orbit(&mut transform, &time, direction, new_direction);
         }
 
         if keyboard.pressed(KeyCode::Q) {
-            direction += Vec3::new(-translation.z, 0., translation.x);
+            let new_direction = Vec3::new(-translation.z, 0., translation.x);
+            orbit(&mut transform, &time, direction, new_direction)
         }
-
-        if direction.length() > 0. {
-            direction = direction.normalize();
-            // println!("({}, {}, {})", direction.x, direction.z, direction.x.powi(2) + direction.z.powi(2));
-        }
-
-        let mut new_translation =  translation + direction * time.delta_seconds();
-        let new_distance_2 = new_translation.x.powi(2) + new_translation.y.powi(2);
-        let ratio = (distance_2 / new_distance_2).sqrt();
-        (new_translation.x, new_translation.z) = (new_translation.x * ratio, new_translation.z * ratio);
-
-        transform.translation = new_translation;
-        transform.look_at(Vec3::ZERO, Vec3::Y);
-        println!("{}", transform.translation);
     }
+}
+
+fn orbit(transform: &mut Mut<'_, Transform>, time: &Res<Time>, mut direction: Vec3, new_direction: Vec3) {
+    
+    let translation = transform.translation;
+    let distance_2 = translation.x.powi(2) + translation.y.powi(2);
+
+    direction += new_direction;
+
+    if direction.length() > 0. {
+        direction = direction.normalize()
+    }
+
+    let mut new_translation = translation + direction * time.delta_seconds();
+    let new_distance_2 = new_translation.x.powi(2) + new_translation.y.powi(2);
+
+    let ratio = (distance_2 / new_distance_2).sqrt();
+    (new_translation.x, new_translation.z) = (new_translation.x * ratio, new_translation.z * ratio);
+
+    transform.translation = new_translation;
+    transform.look_at(Vec3::ZERO, Vec3::Y);
 }
 
 fn lift_camera(mut query: Query<&mut Transform, With<Camera>>, mut wheel_event: EventReader<MouseWheel>, time: Res<Time>) {
