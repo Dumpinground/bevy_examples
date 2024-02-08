@@ -1,4 +1,4 @@
-use std::f32::consts::TAU;
+use std::f32::consts::{FRAC_PI_2, TAU};
 
 use bevy::prelude::*;
 
@@ -24,6 +24,30 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
+    commands.spawn(PbrBundle {
+        mesh: meshes.add(shape::Circle::new(4.).into()),
+        material: materials.add(Color::WHITE.into()),
+        transform: Transform::from_rotation(Quat::from_rotation_x(-FRAC_PI_2)),
+        ..default()
+    });
+
+    commands.spawn(PbrBundle {
+        mesh: meshes.add(Mesh::from(shape::Cube { size: 1. })),
+        material: materials.add(Color::rgb_u8(124, 144, 255).into()),
+        transform: Transform::from_xyz(0., 0.5, 0.),
+        ..default()
+    });
+
+    commands.spawn(PointLightBundle {
+        point_light: PointLight {
+            intensity: 1500.,
+            shadows_enabled: true,
+            ..default()
+        },
+        transform: Transform::from_xyz(4., 8., 4.),
+        ..default()
+    });
+
     commands.spawn((
         PbrBundle {
             mesh: meshes.add(Mesh::from(shape::Cube { size: 0.4 })),
@@ -37,7 +61,6 @@ fn setup(
 }
 
 fn orbit_cube(mut orbit_cubes: Query<(&mut Transform, &Orbital)>, timer: Res<Time>) {
-
     for (mut transform, orbital) in &mut orbit_cubes {
         let angle = orbital.speed * TAU * timer.delta_seconds();
         let move_length = 0.5 * timer.delta_seconds();

@@ -1,3 +1,5 @@
+use std::f32::consts::TAU;
+
 use bevy::{input::mouse::{MouseScrollUnit, MouseWheel}, prelude::*};
 
 pub struct MyCameraPlugin;
@@ -5,7 +7,7 @@ pub struct MyCameraPlugin;
 impl Plugin for MyCameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup,setup)
-        .add_systems(Update, (move_camera, orbit_camera, lift_camera));
+        .add_systems(Update, (pan_camera, orbit_camera, lift_camera));
     }
 }
 
@@ -16,24 +18,26 @@ fn setup(mut commands: Commands) {
     });
 }
 
-fn move_camera(mut query: Query<&mut Transform, With<Camera>>, keyboard: Res<Input<KeyCode>>, time: Res<Time>) {
+fn pan_camera(mut query: Query<&mut Transform, With<Camera>>, keyboard: Res<Input<KeyCode>>, time: Res<Time>) {
     let speed = 2.;
+
+    let move_length = speed * time.delta_seconds();
 
     if let Ok(mut transform) = query.get_single_mut() {
         
         let mut direction = Vec3::ZERO;
 
         if keyboard.pressed(KeyCode::A) {
-            direction += Vec3::new(-1., 0., 0.);
+            direction += -Vec3::X;
         }
         if keyboard.pressed(KeyCode::D) {
-            direction += Vec3::new(1., 0., 0.);
+            direction += Vec3::X;
         }
         if keyboard.pressed(KeyCode::W) {
-            direction += Vec3::new(0., 0., 1.);
+            direction += Vec3::Z;
         }
         if keyboard.pressed(KeyCode::S) {
-            direction += Vec3::new(0., 0., -1.);
+            direction += -Vec3::Z;
         }
 
         if direction.length() > 0. {
@@ -48,41 +52,21 @@ fn orbit_camera(mut query: Query<&mut Transform, With<Camera>>, keyboard: Res<In
     
     if let Ok(mut transform) = query.get_single_mut() {
 
-        // (x, z) = (z, -x);
-        let translation = transform.translation;
-
-        let direction = Vec3::ZERO;
+        let angle = 0.3 * TAU * time.delta_seconds();
 
         if keyboard.pressed(KeyCode::E) {
-            let new_direction = Vec3::new(translation.z, 0., -translation.x);
-            orbit(&mut transform, &time, direction, new_direction);
+            orbit(&mut transform, angle);
         }
 
         if keyboard.pressed(KeyCode::Q) {
-            let new_direction = Vec3::new(-translation.z, 0., translation.x);
-            orbit(&mut transform, &time, direction, new_direction)
+            orbit(&mut transform, -angle);
         }
     }
 }
 
-fn orbit(transform: &mut Mut<'_, Transform>, time: &Res<Time>, mut direction: Vec3, new_direction: Vec3) {
+fn orbit(transform: &mut Mut<'_, Transform>, angle: f32) {
     
-    let translation = transform.translation;
-    let distance_2 = translation.x.powi(2) + translation.y.powi(2);
-
-    direction += new_direction;
-
-    if direction.length() > 0. {
-        direction = direction.normalize()
-    }
-
-    let mut new_translation = translation + direction * time.delta_seconds();
-    let new_distance_2 = new_translation.x.powi(2) + new_translation.y.powi(2);
-
-    let ratio = (distance_2 / new_distance_2).sqrt();
-    (new_translation.x, new_translation.z) = (new_translation.x * ratio, new_translation.z * ratio);
-
-    transform.translation = new_translation;
+    transform.rotate_around(Vec3::ZERO, Quat::from_rotation_y(angle));
     transform.look_at(Vec3::ZERO, Vec3::Y);
 }
 
