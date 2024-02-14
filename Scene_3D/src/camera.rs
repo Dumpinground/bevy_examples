@@ -1,10 +1,10 @@
 use bevy::prelude::*;
 
 mod my_camera;
-mod panrobit;
+mod panorbit;
 
 use my_camera::MyCameraPlugin;
-use panrobit::ExternalPanOrbitCameraPlugin;
+use panorbit::ExternalPanOrbitCameraPlugin;
 
 use crate::env::CameraType;
 pub struct CameraPlugin;
