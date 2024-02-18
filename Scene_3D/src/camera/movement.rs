@@ -1,11 +1,13 @@
 use bevy::{input::mouse::{MouseScrollUnit, MouseWheel}, prelude::*};
 use std::f32::consts::TAU;
 
+use crate::scene::{Ground, Round};
+
 pub struct MovablePlugin;
 
 impl Plugin for MovablePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (pan_camera, orbit_camera, lift_camera));
+        app.add_systems(Update, (pan_camera, orbit_camera, lift_camera, draw_cursor, draw_cursor2));
     }
 }
 
@@ -88,4 +90,44 @@ fn print_wheel_scroll(mut wheel_event: EventReader<MouseWheel>) {
             MouseScrollUnit::Pixel => println!("pixel vertical: {}, horizontal: {}", event.y, event.x),
         }
     }
+}
+
+fn draw_cursor(
+    camera_query: Query<(&Camera, &GlobalTransform)>,
+    ground_query: Query<&GlobalTransform, With<Ground>>,
+    windows: Query<&Window>,
+    mut gizmos: Gizmos,
+) {
+    let (camera, camera_transform) = camera_query.single();
+    let ground = ground_query.single();
+
+    let Some(cursor_position) = windows.single().cursor_position() else { return; };
+
+    let Some(ray) = camera.viewport_to_world(camera_transform, cursor_position) else { return; };
+
+    let Some(distance) = ray.intersect_plane(ground.translation(), Plane3d::new(ground.up())) else { return; };
+
+    let point = ray.get_point(distance);
+
+    gizmos.circle(point, Direction3d::new_unchecked(ground.up()), 0.2, Color::WHITE);
+}
+
+fn draw_cursor2(
+    camera_query: Query<(&Camera, &GlobalTransform)>,
+    ground_query: Query<&GlobalTransform, With<Round>>,
+    windows: Query<&Window>,
+    mut gizmos: Gizmos,
+) {
+    let (camera, camera_transform) = camera_query.single();
+    let ground = ground_query.single();
+
+    let Some(cursor_position) = windows.single().cursor_position() else { return; };
+
+    let Some(ray) = camera.viewport_to_world(camera_transform, cursor_position) else { return; };
+
+    let Some(distance) = ray.intersect_plane(ground.translation(), Plane3d::new(ground.forward())) else { return; };
+
+    let point = ray.get_point(distance);
+
+    gizmos.circle(point, Direction3d::new_unchecked(ground.forward()), 0.2, Color::WHITE);
 }
