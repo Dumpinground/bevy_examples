@@ -1,12 +1,14 @@
-use bevy::prelude::*;
-
-mod my_camera;
-mod panorbit;
-
-use my_camera::MyCameraPlugin;
-use panorbit::ExternalPanOrbitCameraPlugin;
-
 use crate::env::CameraType;
+use bevy::prelude::*;
+mod movement;
+mod my_camera;
+mod orthographic;
+// mod panorbit;
+// use panorbit::ExternalPanOrbitCameraPlugin;
+use my_camera::MyCameraPlugin;
+use orthographic::OrthographicCameraPlugin;
+
+use self::movement::MovablePlugin;
 pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
@@ -15,10 +17,14 @@ impl Plugin for CameraPlugin {
 
         match envs.camera {
             CameraType::Default => {
-                app.add_plugins(MyCameraPlugin);
+                app.add_plugins((MyCameraPlugin, MovablePlugin));
+            }
+            CameraType::Orthographic => {
+                app.add_plugins((OrthographicCameraPlugin, MovablePlugin));
             }
             CameraType::PanOrbit => {
-                app.add_plugins(ExternalPanOrbitCameraPlugin);
+                println!("this need fix");
+                // app.add_plugins(ExternalPanOrbitCameraPlugin);
             }
         }
     }

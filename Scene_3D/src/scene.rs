@@ -25,22 +25,22 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     commands.spawn(PbrBundle {
-        mesh: meshes.add(shape::Circle::new(4.).into()),
-        material: materials.add(Color::WHITE.into()),
+        mesh: meshes.add(Circle::new(4.)),
+        material: materials.add(Color::WHITE),
         transform: Transform::from_rotation(Quat::from_rotation_x(-FRAC_PI_2)),
         ..default()
     });
 
     commands.spawn(PbrBundle {
-        mesh: meshes.add(Mesh::from(shape::Cube { size: 1. })),
-        material: materials.add(Color::rgb_u8(124, 144, 255).into()),
+        mesh: meshes.add(Cuboid::new(1., 1., 1.)),
+        material: materials.add(Color::rgb_u8(124, 144, 255)),
         transform: Transform::from_xyz(0., 0.5, 0.),
         ..default()
     });
 
     commands.spawn(PointLightBundle {
         point_light: PointLight {
-            intensity: 1500.,
+            intensity: 1500000.,
             shadows_enabled: true,
             ..default()
         },
@@ -48,10 +48,13 @@ fn setup(
         ..default()
     });
 
+    let pl = PointLight::default();
+    println!("{:?}", pl);
+
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(Mesh::from(shape::Cube { size: 0.4 })),
-            material: materials.add(Color::rgb_u8(124, 144, 255).into()),
+            mesh: meshes.add(Cuboid::new(0.4, 0.4, 0.4)),
+            material: materials.add(Color::rgb_u8(124, 144, 255)),
             transform: Transform::from_xyz(2., 0.2, 0.),
             ..default()
         },
