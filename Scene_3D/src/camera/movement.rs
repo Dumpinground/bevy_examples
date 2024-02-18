@@ -7,7 +7,7 @@ pub struct MovablePlugin;
 
 impl Plugin for MovablePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (pan_camera, orbit_camera, lift_camera, draw_cursor, draw_cursor2));
+        app.add_systems(Update, (pan_camera, orbit_camera, lift_camera, draw_cursor, draw_cursor2, pan_round));
     }
 }
 
@@ -130,4 +130,31 @@ fn draw_cursor2(
     let point = ray.get_point(distance);
 
     gizmos.circle(point, Direction3d::new_unchecked(ground.forward()), 0.2, Color::WHITE);
+}
+
+fn pan_round(mut query: Query<&mut Transform, With<Round>>, keyboard: Res<ButtonInput<KeyCode>>, time: Res<Time>) {
+    let mut transform = query.single_mut();
+    let mut direction = Vec3::ZERO;
+
+    if keyboard.pressed(KeyCode::ArrowLeft) {
+        direction += Vec3::X;
+    }
+
+    if keyboard.pressed(KeyCode::ArrowRight) {
+        direction -= Vec3::X;
+    }
+
+    if keyboard.pressed(KeyCode::ArrowUp) {
+        direction += Vec3::Z;
+    }
+
+    if keyboard.pressed(KeyCode::ArrowDown) {
+        direction -= Vec3::Z;
+    }
+
+    if direction.length() > 0. {
+        direction = direction.normalize();
+    }
+
+    transform.translation += direction * time.delta_seconds();
 }
