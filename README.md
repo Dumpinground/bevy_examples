@@ -1,1 +1,2 @@
-some bevy examples
+# Some Bevy Examples
+Each folder is standalone rust crate
