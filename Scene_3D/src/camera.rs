@@ -1,10 +1,10 @@
 use crate::env::CameraType;
 use bevy::prelude::*;
+mod external;
 mod movement;
 mod my_camera;
+mod panorbit;
 mod orthographic;
-// mod panorbit;
-// use panorbit::ExternalPanOrbitCameraPlugin;
 use my_camera::MyCameraPlugin;
 use orthographic::OrthographicCameraPlugin;
 
@@ -24,7 +24,7 @@ impl Plugin for CameraPlugin {
             }
             CameraType::PanOrbit => {
                 println!("this need fix");
-                // app.add_plugins(ExternalPanOrbitCameraPlugin);
+                app.add_plugins(external::panorbit::CameraPlugin);
             }
         }
     }
