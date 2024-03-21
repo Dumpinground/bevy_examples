@@ -9,8 +9,16 @@ pub enum CameraType {
 }
 
 #[derive(Default)]
+pub enum ReferenceType {
+    #[default]
+    Internal,
+    External,
+}
+
+#[derive(Default)]
 pub struct Envs {
     pub camera: CameraType,
+    pub reference: ReferenceType,
 }
 
 pub fn read_envs() -> Envs {
@@ -27,6 +35,15 @@ pub fn read_envs() -> Envs {
             "pan_orbit" => CameraType::PanOrbit,
             "orthographic" => CameraType::Orthographic,
             _ => CameraType::Default,
+        }
+    }
+
+    if let Ok(reference) = env::var("reference") {
+        let reference = reference.as_str();
+
+        env_vars.reference = match reference {
+            "external" => ReferenceType::External,
+            _ => ReferenceType::Internal,
         }
     }
 

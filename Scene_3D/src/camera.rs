@@ -1,4 +1,4 @@
-use crate::env::CameraType;
+use crate::env::{CameraType, ReferenceType};
 use bevy::prelude::*;
 mod external;
 mod movement;
@@ -23,8 +23,11 @@ impl Plugin for CameraPlugin {
                 app.add_plugins((OrthographicCameraPlugin, MovablePlugin));
             }
             CameraType::PanOrbit => {
-                println!("this need fix");
-                app.add_plugins(external::panorbit::CameraPlugin);
+                if let ReferenceType::External = envs.reference {
+                    app.add_plugins(external::panorbit::CameraPlugin);
+                } else {
+                    app.add_plugins(panorbit::CameraPlugin);
+                }
             }
         }
     }
