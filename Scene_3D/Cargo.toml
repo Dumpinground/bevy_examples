@@ -23,7 +23,7 @@ opt-level = "z"
 bevy = { version = "0.13", features = ["dynamic_linking"] }
 
 [dependencies]
-bevy_panorbit_camera = "0.16" # need update to bevy 0.13
+bevy_panorbit_camera = "0.16"
 dotenvy = "0.15"
 
 bevy = "0.13"

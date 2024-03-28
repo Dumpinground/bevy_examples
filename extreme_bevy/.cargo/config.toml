@@ -1,4 +1,4 @@
-[wasm32-unknown-unknown]
+[target.wasm32-unknown-unknown]
 runner = "wasm-server-runner"
 
 [target.x86_64-pc-windows-msvc]
