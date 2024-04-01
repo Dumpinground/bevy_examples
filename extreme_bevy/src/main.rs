@@ -15,7 +15,6 @@ const INPUT_LEFT: u8 = 1 << 2;
 const INPUT_RIGHT: u8 = 1 << 3;
 const INPUT_FIRE: u8 = 1 << 4;
 
-
 fn main() {
     App::new()
         .add_plugins((
@@ -111,7 +110,7 @@ fn move_players(
 }
 
 fn start_matchbox_socket(mut commands: Commands) {
-    let room_url = "ws://127.0.0.1:3536/extreme_bevy?next=2";
+    let room_url = "ws://localhost:3536/extreme_bevy?next=2";
     info!("connecting to matchbox server: {room_url}");
     commands.insert_resource(MatchboxSocket::new_ggrs(room_url))
 }
@@ -126,6 +125,7 @@ fn wait_for_players(mut commands: Commands, mut socket: ResMut<MatchboxSocket<Si
 
     let num_players = 2;
     if players.len() < num_players {
+        info!("{} more players are need for start. Waiting for more players", num_players - players.len());
         return;
     }
 
