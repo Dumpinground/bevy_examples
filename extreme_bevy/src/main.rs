@@ -1,19 +1,13 @@
-use bevy::{prelude::*, render::camera::ScalingMode, utils::HashMap};
+mod components;
+mod input;
+
+use bevy::{prelude::*, render::camera::ScalingMode};
 use bevy_ggrs::*;
 use bevy_matchbox::prelude::*;
 
-#[derive(Component)]
-struct Player {
-    handle: usize,
-}
+use crate::{components::*, input::*};
 
 type Config = GgrsConfig<u8, PeerId>;
-
-const INPUT_UP: u8 = 1 << 0;
-const INPUT_DOWN: u8 = 1 << 1;
-const INPUT_LEFT: u8 = 1 << 2;
-const INPUT_RIGHT: u8 = 1 << 3;
-const INPUT_FIRE: u8 = 1 << 4;
 
 fn main() {
     App::new()
@@ -30,7 +24,7 @@ fn main() {
         .rollback_component_with_clone::<Transform>()
         .insert_resource(ClearColor(Color::rgb(0.53, 0.53, 0.53)))
         .add_systems(Startup, (setup, spawn_players, start_matchbox_socket))
-        .add_systems(Update, wait_for_players)
+        .add_systems(Update, (wait_for_players, camera_follow))
         .add_systems(ReadInputs, read_local_inputs)
         .add_systems(GgrsSchedule, move_players)
         .run();
@@ -40,6 +34,21 @@ fn setup(mut commands: Commands) {
     let mut camera_bundle = Camera2dBundle::default();
     camera_bundle.projection.scaling_mode = ScalingMode::FixedVertical(10.);
     commands.spawn(camera_bundle);
+}
+
+fn camera_follow(local_players: Res<LocalPlayers>, players: Query<(&Player, &Transform)>, mut camera: Query<&mut Transform, (With<Camera>, Without<Player>)>) {
+    for (player, player_transform) in &players {
+        if !local_players.0.contains(&player.handle) {
+            continue;
+        }
+
+        let pos = player_transform.translation;
+
+        for mut transform in &mut camera {
+            transform.translation.x = pos.x;
+            transform.translation.y = pos.y;
+        }
+    }
 }
 
 fn spawn_players(mut commands: Commands) {
@@ -84,20 +93,8 @@ fn move_players(
     for (mut transform, player) in &mut players {
         let (input, _) = inputs[player.handle];
 
-        let mut direction = Vec2::ZERO;
+        let direction = direction(input);
 
-        if input & INPUT_UP != 0 {
-            direction.y += 1.;
-        }
-        if input & INPUT_DOWN != 0 {
-            direction.y -= 1.;
-        }
-        if input & INPUT_RIGHT != 0 {
-            direction.x += 1.;
-        }
-        if input & INPUT_LEFT != 0 {
-            direction.x -= 1.;
-        }
         if direction == Vec2::ZERO {
             continue;
         }
@@ -125,7 +122,6 @@ fn wait_for_players(mut commands: Commands, mut socket: ResMut<MatchboxSocket<Si
 
     let num_players = 2;
     if players.len() < num_players {
-        info!("{} more players are need for start. Waiting for more players", num_players - players.len());
         return;
     }
 
@@ -148,36 +144,4 @@ fn wait_for_players(mut commands: Commands, mut socket: ResMut<MatchboxSocket<Si
         .expect("failed to start session");
 
     commands.insert_resource(Session::P2P(ggrs_session));
-}
-
-fn read_local_inputs(
-    mut commands: Commands,
-    keys: Res<ButtonInput<KeyCode>>,
-    local_players: Res<LocalPlayers>,
-) {
-    let mut local_inputs = HashMap::new();
-
-    for handle in &local_players.0 {
-        let mut input = 0u8;
-
-        if keys.any_pressed([KeyCode::ArrowUp, KeyCode::KeyW]) {
-            input |= INPUT_UP;
-        }
-        if keys.any_pressed([KeyCode::ArrowDown, KeyCode::KeyS]) {
-            input |= INPUT_DOWN;
-        }
-        if keys.any_pressed([KeyCode::ArrowLeft, KeyCode::KeyA]) {
-            input |= INPUT_LEFT;
-        }
-        if keys.any_pressed([KeyCode::ArrowRight, KeyCode::KeyD]) {
-            input |= INPUT_RIGHT;
-        }
-        if keys.any_pressed([KeyCode::Space, KeyCode::Enter]) {
-            input |= INPUT_FIRE;
-        }
-
-        local_inputs.insert(*handle, input);
-    }
-
-    commands.insert_resource(LocalInputs::<Config>(local_inputs));
 }
