@@ -2,6 +2,20 @@ use bevy::{prelude::*, render::camera::ScalingMode, utils::HashMap};
 use bevy_ggrs::*;
 use bevy_matchbox::prelude::*;
 
+#[derive(Component)]
+struct Player {
+    handle: usize,
+}
+
+type Config = GgrsConfig<u8, PeerId>;
+
+const INPUT_UP: u8 = 1 << 0;
+const INPUT_DOWN: u8 = 1 << 1;
+const INPUT_LEFT: u8 = 1 << 2;
+const INPUT_RIGHT: u8 = 1 << 3;
+const INPUT_FIRE: u8 = 1 << 4;
+
+
 fn main() {
     App::new()
         .add_plugins((
@@ -23,23 +37,10 @@ fn main() {
         .run();
 }
 
-type Config = GgrsConfig<u8, PeerId>;
-
-const INPUT_UP: u8 = 1 << 0;
-const INPUT_DOWN: u8 = 1 << 1;
-const INPUT_LEFT: u8 = 1 << 2;
-const INPUT_RIGHT: u8 = 1 << 3;
-const INPUT_FIRE: u8 = 1 << 4;
-
 fn setup(mut commands: Commands) {
     let mut camera_bundle = Camera2dBundle::default();
     camera_bundle.projection.scaling_mode = ScalingMode::FixedVertical(10.);
     commands.spawn(camera_bundle);
-}
-
-#[derive(Component)]
-struct Player {
-    handle: usize,
 }
 
 fn spawn_players(mut commands: Commands) {
@@ -110,7 +111,8 @@ fn move_players(
 }
 
 fn start_matchbox_socket(mut commands: Commands) {
-    let room_url = "ws://localhost:3536/extreme_bevy?next=2";
+    let room_url = "ws://127.0.0.1:3536/extreme_bevy?next=2";
+    info!("connecting to matchbox server: {room_url}");
     commands.insert_resource(MatchboxSocket::new_ggrs(room_url))
 }
 
@@ -176,4 +178,6 @@ fn read_local_inputs(
 
         local_inputs.insert(*handle, input);
     }
+
+    commands.insert_resource(LocalInputs::<Config>(local_inputs));
 }
