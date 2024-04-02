@@ -1,8 +1,6 @@
 mod components;
 mod input;
 
-use std::default;
-
 use bevy::{prelude::*, render::camera::ScalingMode};
 use bevy_asset_loader::prelude::*;
 use bevy_ggrs::*;
@@ -28,12 +26,6 @@ enum GameState {
     Matchmaking,
     InGame,
 }
-
-#[derive(Component, Clone, Copy)]
-pub struct BulletReady(pub bool);
-
-#[derive(Component)]
-pub struct Bullet;
 
 fn main() {
     App::new()
@@ -69,7 +61,7 @@ fn main() {
             ),
         )
         .add_systems(ReadInputs, read_local_inputs)
-        .add_systems(GgrsSchedule, (move_players, fire_bullets).chain())
+        .add_systems(GgrsSchedule, (move_players, reload_bullet, fire_bullets, move_bullet).chain())
         .run();
 }
 
@@ -146,7 +138,7 @@ fn spawn_players(mut commands: Commands) {
                 ..default()
             },
             Player { handle: 0 },
-            BulletReady(true)
+            BulletReady(true),
         ))
         .add_rollback();
 
@@ -163,7 +155,7 @@ fn spawn_players(mut commands: Commands) {
                 ..default()
             },
             Player { handle: 1 },
-            BulletReady(true)
+            BulletReady(true),
         ))
         .add_rollback();
 }
@@ -198,31 +190,48 @@ fn fire_bullets(
     mut commands: Commands,
     inputs: Res<PlayerInputs<Config>>,
     images: Res<ImageAssets>,
-    players: Query<(&Transform, &Player)>,
+    mut players: Query<(&Transform, &Player, &mut BulletReady, &MoveDir)>,
 ) {
-    for (transform, player) in &players {
+    for (transform, player, mut bullet_ready, move_dir) in &mut players {
         // Spawn bullet
         let (input, _) = inputs[player.handle];
-        if fire(input) {
-            commands.spawn(SpriteBundle {
-                transform: Transform::from_translation(transform.translation),
-                texture: images.bullet.clone(),
-                sprite: Sprite {
-                    custom_size: Some(Vec2::new(0.3, 0.1)),
-                    ..default()
-                },
-                ..default()
-            });
+        if fire(input) && bullet_ready.0 {
+            commands
+                .spawn((
+                    SpriteBundle {
+                        transform: Transform::from_translation(transform.translation),
+                        texture: images.bullet.clone(),
+                        sprite: Sprite {
+                            custom_size: Some(Vec2::new(0.3, 0.1)),
+                            ..default()
+                        },
+                        ..default()
+                    },
+                    *move_dir,
+                    Bullet,
+                ))
+                .add_rollback();
+            bullet_ready.0 = false;
         }
     }
 }
 
-fn reload_bullet(inputs: Res<PlayerInputs<Config>>, mut players: Query<(&mut BulletReady, &Player)>) {
+fn reload_bullet(
+    inputs: Res<PlayerInputs<Config>>,
+    mut players: Query<(&mut BulletReady, &Player)>,
+) {
     for (mut can_fire, player) in players.iter_mut() {
         let (input, _) = inputs[player.handle];
         if !fire(input) {
             can_fire.0 = true
         }
+    }
+}
+
+fn move_bullet(mut bullets: Query<&mut Transform, With<Bullet>>, time: Res<Time>) {
+    for mut transform in &mut bullets {
+        let speed = 1.;
+        transform.translation.x += speed * time.delta_seconds();
     }
 }
 
