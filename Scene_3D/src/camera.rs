@@ -30,5 +30,20 @@ impl Plugin for CameraPlugin {
                 }
             }
         }
+
+        match (envs.camera, envs.reference) {
+            (CameraType::Orthographic, ReferenceType::Internal) => {
+                app.add_plugins((OrthographicCameraPlugin, MovablePlugin));
+            }
+            (CameraType::PanOrbit, ReferenceType::Internal) => {
+                app.add_plugins(panorbit::CameraPlugin);
+            }
+            (CameraType::PanOrbit, ReferenceType::External) => {
+                app.add_plugins(external::panorbit::CameraPlugin);
+            }
+            (_, _) => {
+                app.add_plugins((MyCameraPlugin, MovablePlugin));
+            }
+        }
     }
 }
