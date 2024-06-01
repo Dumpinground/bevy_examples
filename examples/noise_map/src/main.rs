@@ -15,9 +15,10 @@ fn main() {
     App::new()
     .add_plugins((DefaultPlugins.set(ImagePlugin::default_nearest()).set(LogPlugin {
         level: Level::DEBUG,
-        filter: "wgpu=error,naga=error,bevy_render=error,bevy_app=info,bevy_ecs=info".to_string()
+        filter: "wgpu=error,naga=error,bevy_render=error,bevy_app=info,bevy_ecs=info".to_string(),
+        ..default()
     }), ui::UiPlugin))
-    .add_state::<AppState>()
+    .init_state::<AppState>()
     .add_systems(OnEnter(AppState::Build), generate_world)
     .add_systems(OnExit(AppState::Finished), cleanup)
     .add_systems(Update, reset.run_if(in_state(AppState::Finished)))
@@ -28,9 +29,9 @@ fn generate_noise_map() -> NoiseMap {
     let mut rng = thread_rng();
     let seed: u32 = rng.gen();
 
-    let basicmulti = BasicMulti::<Perlin>::new(seed);
+    let basic_multi = BasicMulti::<Perlin>::new(seed);
 
-    PlaneMapBuilder::<_, 2>::new(&basicmulti).build()
+    PlaneMapBuilder::new(&basic_multi).build()
 }
 
 fn get_color(val: f64) -> Color {

@@ -25,7 +25,7 @@ pub fn button_system(
         (Changed<Interaction>, With<Button>),
     >,
     mut events: EventWriter<ResetMapEvent>,
-    mut mouse_buttons: ResMut<Input<MouseButton>>
+    mut mouse_buttons: ResMut<ButtonInput<MouseButton>>
 ) {
     for (interaction, mut color, mut border_color) in &mut interaction_query {
         match *interaction {
@@ -33,7 +33,7 @@ pub fn button_system(
                 mouse_buttons.clear_just_pressed(MouseButton::Left);
                 *color = PRESSED_BUTTON.into();
                 border_color.0 = Color::RED;
-                events.send(ResetMapEvent)
+                events.send(ResetMapEvent);
             }
             Interaction::Hovered => {
                 *color = HOVERED_BUTTON.into();

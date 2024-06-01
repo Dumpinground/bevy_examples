@@ -11,5 +11,5 @@ bevy = { version = "0.13", features = ["dynamic_linking"] }
 [dependencies]
 bevy = "0.13"
 
-noise = "0.8"
+noise = "0.9"
 rand = "0.8"

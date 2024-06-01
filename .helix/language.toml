@@ -1,0 +1,5 @@
+[languge-server.rust-analyzer]
+files.excludeDirs = [
+  "examples/extreme_bevy",
+  "examples/noise_map",
+]
