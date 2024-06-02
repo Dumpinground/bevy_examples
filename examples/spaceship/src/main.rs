@@ -1,18 +1,21 @@
+mod asset_loader;
+mod asteroids;
 mod camera;
+mod collision_detection;
 mod debug;
 mod movement;
 mod spaceship;
+mod despawn;
 
+use asset_loader::AssetLoaderPlugin;
+use asteroids::AsteroidPlugin;
 use bevy::prelude::*;
 use camera::CameraPlugin;
-use debug::DebugPlugin;
+use collision_detection::CollisionsDetectionPlugin;
+use despawn::DespawnPlugin;
+// use debug::DebugPlugin;
 use movement::MovementPlugin;
 use spaceship::SpaceshipPlugin;
-
-#[derive(Component, Debug)]
-struct Velocity {
-    pub value: Vec3,
-}
 
 fn main() {
     App::new()
@@ -23,10 +26,14 @@ fn main() {
         })
         .add_plugins((
             DefaultPlugins,
+            AssetLoaderPlugin,
             SpaceshipPlugin,
+            AsteroidPlugin,
             MovementPlugin,
-            DebugPlugin,
+            CollisionsDetectionPlugin,
+            // DebugPlugin,
             CameraPlugin,
+            DespawnPlugin,
         ))
         .run();
 }

@@ -1,4 +1,4 @@
-[languge-server.rust-analyzer]
+[languge-server.rust-analyzer.config]
 files.excludeDirs = [
   "examples/extreme_bevy",
   "examples/noise_map",
