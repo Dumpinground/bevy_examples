@@ -1,6 +1,6 @@
 use crate::env::{CameraType, ReferenceType};
 use bevy::prelude::*;
-mod external;
+// mod external;
 mod movement;
 mod my_camera;
 mod panorbit;
@@ -22,9 +22,10 @@ impl Plugin for CameraPlugin {
             (CameraType::PanOrbit, ReferenceType::Internal) => {
                 app.add_plugins(panorbit::CameraPlugin);
             }
-            (CameraType::PanOrbit, ReferenceType::External) => {
-                app.add_plugins(external::panorbit::CameraPlugin);
-            }
+            // wait for fix
+            // (CameraType::PanOrbit, ReferenceType::External) => {
+            //     app.add_plugins(external::panorbit::CameraPlugin);
+            // }
             (_, _) => {
                 app.add_plugins((MyCameraPlugin, MovablePlugin));
             }

@@ -105,11 +105,11 @@ fn draw_cursor(
 
     let Some(ray) = camera.viewport_to_world(camera_transform, cursor_position) else { return; };
 
-    let Some(distance) = ray.intersect_plane(ground.translation(), Plane3d::new(ground.up())) else { return; };
+    let Some(distance) = ray.intersect_plane(ground.translation(), InfinitePlane3d::new(ground.up())) else { return; };
 
     let point = ray.get_point(distance);
 
-    gizmos.circle(point, Direction3d::new_unchecked(ground.up()), 0.2, Color::WHITE);
+    gizmos.circle(point, ground.up(), 0.2, Color::WHITE);
 }
 
 fn draw_cursor2(
@@ -125,11 +125,11 @@ fn draw_cursor2(
 
     let Some(ray) = camera.viewport_to_world(camera_transform, cursor_position) else { return; };
 
-    let Some(distance) = ray.intersect_plane(ground.translation(), Plane3d::new(ground.forward())) else { return; };
+    let Some(distance) = ray.intersect_plane(ground.translation(), InfinitePlane3d::new(ground.forward())) else { return; };
 
     let point = ray.get_point(distance);
 
-    gizmos.circle(point, Direction3d::new_unchecked(ground.forward()), 0.2, Color::WHITE);
+    gizmos.circle(point, ground.forward(), 0.2, Color::WHITE);
 }
 
 fn pan_round(mut query: Query<&mut Transform, With<Round>>, keyboard: Res<ButtonInput<KeyCode>>, time: Res<Time>) {

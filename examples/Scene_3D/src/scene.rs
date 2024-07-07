@@ -42,14 +42,14 @@ fn setup(
 
     commands.spawn((PbrBundle {
         mesh: meshes.add(Plane3d::default().mesh().size(20., 20.)),
-        material: materials.add(Color::rgb(0.3, 0.5, 0.3)),
+        material: materials.add(Color::srgb(0.3, 0.5, 0.3)),
         transform: Transform::from_xyz(0., -1., 0.),
         ..default()
     }, Ground));
 
     commands.spawn(PbrBundle {
         mesh: meshes.add(Cuboid::new(1., 1., 1.)),
-        material: materials.add(Color::rgb_u8(124, 144, 255)),
+        material: materials.add(Color::srgb_u8(124, 144, 255)),
         transform: Transform::from_xyz(0., 0.5, 0.),
         ..default()
     });
@@ -70,7 +70,7 @@ fn setup(
     commands.spawn((
         PbrBundle {
             mesh: meshes.add(Cuboid::new(0.4, 0.4, 0.4)),
-            material: materials.add(Color::rgb_u8(124, 144, 255)),
+            material: materials.add(Color::srgb_u8(124, 144, 255)),
             transform: Transform::from_xyz(2., 0.2, 0.),
             ..default()
         },
