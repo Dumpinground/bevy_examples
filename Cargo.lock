@@ -1634,6 +1634,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_panorbit_camera"
+version = "0.19.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f3314c6336cc4e967ac64da28e91b9e9305fbebd08b30c4e1296dff985f2e0cb"
+dependencies = [
+ "bevy 0.14.0",
+]
+
+[[package]]
 name = "bevy_pbr"
 version = "0.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2239,6 +2248,16 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.66",
+]
+
+[[package]]
+name = "bevy_water"
+version = "0.14.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a5a0bdf9e4687bedca8377e5b12636b322e28e8a39b154596ddfd548cdf45e4"
+dependencies = [
+ "anyhow",
+ "bevy 0.14.0",
 ]
 
 [[package]]
@@ -6884,6 +6903,15 @@ name = "wasm-bindgen-shared"
 version = "0.2.92"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "af190c94f2773fdb3729c55b007a722abb5384da03bc0986df4c289bf5567e96"
+
+[[package]]
+name = "water"
+version = "0.1.0"
+dependencies = [
+ "bevy 0.14.0",
+ "bevy_panorbit_camera 0.19.1",
+ "bevy_water",
+]
 
 [[package]]
 name = "web-sys"
