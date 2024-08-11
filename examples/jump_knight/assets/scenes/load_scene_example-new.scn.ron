@@ -1,0 +1,54 @@
+(
+  resources: {
+    "scene::ResourceA": (
+      score: 1,
+    ),
+  },
+  entities: {
+    4294967296: (
+      components: {
+        "scene::ComponentB": (
+          value: "hello",
+          _time_since_startup: (
+            secs: 0,
+            nanos: 0,
+          ),
+        ),
+        "scene::ComponentA": (
+          x: 1.0,
+          y: 2.0,
+        ),
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+          ),
+          rotation: (
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+            w: 1.0,
+          ),
+          scale: (
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+          ),
+        ),
+        "bevy_core::name::Name": (
+          hash: 13051789712898706682,
+          name: "joe",
+        ),
+      },
+    ),
+    4294967297: (
+      components: {
+        "scene::ComponentA": (
+          x: 3.0,
+          y: 4.0,
+        ),
+      },
+    ),
+  },
+)

@@ -1,0 +1,12 @@
+[package]
+name = "ryot_pathfinding"
+version = "0.1.0"
+edition = "2021"
+
+[dev-dependencies]
+bevy = { version = "0.13", features = ["dynamic_linking"]}
+
+[dependencies]
+bevy = "0.13"
+ryot_core = "0.2"
+ryot_pathfinder = "0.2"
