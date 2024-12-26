@@ -38,6 +38,9 @@ fn main() {
         .add_plugins((
             DefaultPlugins.set(WindowPlugin {
                 primary_window: Some(Window {
+                    // fill the entire browser window
+                    fit_canvas_to_parent: true,
+                    // don't hijack keyboard shortcuts like F5, F6, F12, Ctrl+R etc.
                     prevent_default_event_handling: false,
                     ..default()
                 }),
@@ -61,7 +64,10 @@ fn main() {
             ),
         )
         .add_systems(ReadInputs, read_local_inputs)
-        .add_systems(GgrsSchedule, (move_players, reload_bullet, fire_bullets, move_bullet).chain())
+        .add_systems(
+            GgrsSchedule,
+            (move_players, reload_bullet, fire_bullets, move_bullet).chain(),
+        )
         .run();
 }
 
