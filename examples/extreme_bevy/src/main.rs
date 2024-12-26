@@ -50,7 +50,7 @@ fn main() {
         ))
         .rollback_component_with_clone::<Transform>()
         .rollback_component_with_copy::<BulletReady>()
-        .insert_resource(ClearColor(Color::rgb(0.53, 0.53, 0.53)))
+        .insert_resource(ClearColor(Color::srgb(0.53, 0.53, 0.53)))
         .add_systems(
             OnEnter(GameState::Matchmaking),
             (setup, start_matchbox_socket),
@@ -72,42 +72,38 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
-    let mut camera_bundle = Camera2dBundle::default();
-    camera_bundle.projection.scaling_mode = ScalingMode::FixedVertical(10.);
-    commands.spawn(camera_bundle);
+    commands.spawn((
+        Camera2d,
+        OrthographicProjection {
+            scaling_mode: ScalingMode::FixedVertical {
+                viewport_height: 10.,
+            },
+            ..OrthographicProjection::default_2d()
+        },
+    ));
 
     // Horizontal lines
     for i in 0..=MAP_SIZE {
-        commands.spawn(SpriteBundle {
-            transform: Transform::from_translation(Vec3::new(
-                0.,
-                i as f32 - MAP_SIZE as f32 / 2.,
-                0.,
-            )),
-            sprite: Sprite {
-                color: Color::rgb(0.27, 0.27, 0.27),
+        commands.spawn((
+            Transform::from_translation(Vec3::new(0., i as f32 - MAP_SIZE as f32 / 2., 0.)),
+            Sprite {
+                color: Color::srgb(0.27, 0.27, 0.27),
                 custom_size: Some(Vec2::new(MAP_SIZE as f32, GRID_WIDTH)),
                 ..default()
             },
-            ..default()
-        });
+        ));
     }
 
     // Vertical lines
     for i in 0..=MAP_SIZE {
-        commands.spawn(SpriteBundle {
-            transform: Transform::from_translation(Vec3::new(
-                i as f32 - MAP_SIZE as f32 / 2.,
-                0.,
-                0.,
-            )),
-            sprite: Sprite {
-                color: Color::rgb(0.27, 0.27, 0.27),
+        commands.spawn((
+            Transform::from_translation(Vec3::new(i as f32 - MAP_SIZE as f32 / 2., 0., 0.)),
+            Sprite {
+                color: Color::srgb(0.27, 0.27, 0.27),
                 custom_size: Some(Vec2::new(GRID_WIDTH, MAP_SIZE as f32)),
                 ..default()
             },
-            ..default()
-        });
+        ));
     }
 }
 
@@ -134,44 +130,40 @@ fn spawn_players(mut commands: Commands) {
     // Player 1
     commands
         .spawn((
-            SpriteBundle {
-                transform: Transform::from_translation(Vec3::new(-2., 0., 100.)),
-                sprite: Sprite {
-                    color: Color::rgb(0., 0.47, 1.),
-                    custom_size: Some(Vec2::new(1., 1.)),
-                    ..default()
-                },
-                ..default()
-            },
             Player { handle: 0 },
             BulletReady(true),
+            MoveDir(-Vec2::X),
+            Transform::from_translation(Vec3::new(-2., 0., 100.)),
+            Sprite {
+                color: Color::srgb(0., 0.47, 1.),
+                custom_size: Some(Vec2::ONE),
+                ..default()
+            },
         ))
         .add_rollback();
 
     // Player 2
     commands
         .spawn((
-            SpriteBundle {
-                transform: Transform::from_translation(Vec3::new(2., 0., 100.)),
-                sprite: Sprite {
-                    color: Color::rgb(0., 0.4, 0.),
-                    custom_size: Some(Vec2::new(1., 1.)),
-                    ..default()
-                },
-                ..default()
-            },
             Player { handle: 1 },
             BulletReady(true),
+            MoveDir(Vec2::X),
+            Transform::from_translation(Vec3::new(2., 0., 100.)),
+            Sprite {
+                color: Color::srgb(0., 0.47, 1.),
+                custom_size: Some(Vec2::ONE),
+                ..default()
+            },
         ))
         .add_rollback();
 }
 
 fn move_players(
     inputs: Res<PlayerInputs<Config>>,
-    mut players: Query<(&mut Transform, &Player)>,
+    mut players: Query<(&mut Transform, &mut MoveDir, &Player)>,
     time: Res<Time>,
 ) {
-    for (mut transform, player) in &mut players {
+    for (mut transform, mut move_dir, player) in &mut players {
         let (input, _) = inputs[player.handle];
 
         let direction = direction(input);
@@ -180,8 +172,10 @@ fn move_players(
             continue;
         }
 
+        move_dir.0 = direction;
+
         let move_speed = 7.;
-        let move_delta = direction * move_speed * time.delta_seconds();
+        let move_delta = direction * move_speed * time.delta_secs();
 
         let old_ops = transform.translation.xy();
         let limit = Vec2::splat(MAP_SIZE as f32 / 2. - 0.5);
@@ -204,17 +198,14 @@ fn fire_bullets(
         if fire(input) && bullet_ready.0 {
             commands
                 .spawn((
-                    SpriteBundle {
-                        transform: Transform::from_translation(transform.translation),
-                        texture: images.bullet.clone(),
-                        sprite: Sprite {
-                            custom_size: Some(Vec2::new(0.3, 0.1)),
-                            ..default()
-                        },
+                    Bullet,
+                    Transform::from_translation(transform.translation),
+                    *move_dir,
+                    Sprite {
+                        image: images.bullet.clone(),
+                        custom_size: Some(Vec2::new(0.3, 0.1)),
                         ..default()
                     },
-                    *move_dir,
-                    Bullet,
                 ))
                 .add_rollback();
             bullet_ready.0 = false;
@@ -234,28 +225,30 @@ fn reload_bullet(
     }
 }
 
-fn move_bullet(mut bullets: Query<&mut Transform, With<Bullet>>, time: Res<Time>) {
-    for mut transform in &mut bullets {
-        let speed = 1.;
-        transform.translation.x += speed * time.delta_seconds();
+fn move_bullet(mut bullets: Query<(&mut Transform, &MoveDir), With<Bullet>>, time: Res<Time>) {
+    for (mut transform, dir) in &mut bullets {
+        let speed = 20.;
+        let delta = dir.0 * speed * time.delta_secs();
+        transform.translation += delta.extend(0.);
     }
 }
 
 fn start_matchbox_socket(mut commands: Commands) {
     let room_url = "ws://localhost:3536/extreme_bevy?next=2";
     info!("connecting to matchbox server: {room_url}");
-    commands.insert_resource(MatchboxSocket::new_ggrs(room_url))
+    commands.insert_resource(MatchboxSocket::new_unreliable(room_url))
 }
 
 fn wait_for_players(
     mut commands: Commands,
-    mut socket: ResMut<MatchboxSocket<SingleChannel>>,
+    mut socket: ResMut<MatchboxSocket>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
     if socket.get_channel(0).is_err() {
-        return;
+        return; // we've already started
     }
 
+    // Check for new connections
     socket.update_peers();
     let players = socket.players();
 
