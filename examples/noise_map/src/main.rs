@@ -1,4 +1,7 @@
-use bevy::{prelude::*, log::{LogPlugin, Level}};
+use bevy::{
+    log::{Level, LogPlugin},
+    prelude::*,
+};
 use common::AppState;
 use noise::{
     utils::{NoiseMap, NoiseMapBuilder, PlaneMapBuilder},
